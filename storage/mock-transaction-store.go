@@ -19,6 +19,24 @@ func (store *MockTransactionStore) GetList() ([]models.Transaction, error) {
 	return tx, nil
 }
 
+func (store *MockTransactionStore) GetPaginatedList(limit int, offset int) ([]models.Transaction, error) {
+	values := make([]models.Transaction, 0, len(transactions))
+	for _, v := range transactions {
+		values = append(values, v)
+	}
+
+	if offset > len(values) {
+		return []models.Transaction{}, nil
+	}
+
+	end := offset + limit
+	if end > len(values) {
+		end = len(values)
+	}
+
+	return values[offset:end], nil
+}
+
 func (store *MockTransactionStore) Get(id uint) (models.Transaction, error) {
 	val, exists := transactions[id]
 

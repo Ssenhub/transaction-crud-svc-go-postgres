@@ -8,6 +8,7 @@ import (
 
 type TransactionStore interface {
 	GetList() ([]models.Transaction, error)
+	GetPaginatedList(limit int, offset int) ([]models.Transaction, error)
 	Get(id uint) (models.Transaction, error)
 	Create(tx models.Transaction) error
 	Update(tx models.Transaction) error
@@ -23,6 +24,14 @@ func (store *PostgresTransactionStore) GetList() ([]models.Transaction, error) {
 	txModels := []models.Transaction{}
 
 	err := store.DB.Find(&txModels).Error
+
+	return txModels, err
+}
+
+func (store *PostgresTransactionStore) GetPaginatedList(limit int, offset int) ([]models.Transaction, error) {
+	txModels := []models.Transaction{}
+
+	err := store.DB.Limit(limit).Offset(offset).Find(&txModels).Error
 
 	return txModels, err
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"testing"
@@ -110,6 +111,56 @@ func Test_Create(t *testing.T) {
 	defer resp.Body.Close()
 
 	expectedData := [...]models.Transaction{tx1, tx2}
+	validateData(t, resp, expectedData[:])
+
+	t.Cleanup(cleanUp)
+}
+
+func Test_Pagination(t *testing.T) {
+
+	_, err := create(tx1)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = create(tx2)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var expectedData []models.Transaction
+
+	// Get page 1
+	resp, err := getPaginatedList(1, 0)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer resp.Body.Close()
+
+	expectedData = []models.Transaction{tx1}
+	validateData(t, resp, expectedData[:])
+
+	// Get page 2
+	resp, err = getPaginatedList(1, 1)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer resp.Body.Close()
+
+	expectedData = []models.Transaction{tx2}
+	validateData(t, resp, expectedData[:])
+
+	// Get page 3. Should be empty
+	resp, err = getPaginatedList(1, 2)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer resp.Body.Close()
+
+	expectedData = []models.Transaction{}
 	validateData(t, resp, expectedData[:])
 
 	t.Cleanup(cleanUp)
@@ -393,6 +444,34 @@ func getList() (*http.Response, error) {
 	return resp, nil
 }
 
+func getPaginatedList(limit int, offset int) (*http.Response, error) {
+	client := &http.Client{}
+
+	baseUrl := "http://localhost:3000/transactions"
+
+	url, err := buildUrl(baseUrl, limit, offset)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	request.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := client.Do(request)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return resp, nil
+}
+
 func get(id uint) (*http.Response, error) {
 	client := &http.Client{}
 
@@ -519,6 +598,20 @@ func validateData(t *testing.T, resp *http.Response, expectedData []models.Trans
 		assert.Equal(expectedData[i].Type, txs[i].Type, "Type mismatch")
 		assert.Equal(user.UserName, txs[i].User, "Type mismatch")
 	}
+}
+
+func buildUrl(base string, limit, offset int) (string, error) {
+	u, err := url.Parse(base)
+	if err != nil {
+		return "", err
+	}
+
+	q := u.Query()
+	q.Set("limit", strconv.Itoa(limit))
+	q.Set("page", strconv.Itoa(offset))
+	u.RawQuery = q.Encode()
+
+	return u.String(), nil
 }
 
 func cleanUp() {

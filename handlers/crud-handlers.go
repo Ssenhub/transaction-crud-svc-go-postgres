@@ -22,7 +22,14 @@ type DataStore struct {
 var DataHandler DataStore
 
 func GetListHandler(w http.ResponseWriter, r *http.Request) {
-	txModels, err := DataHandler.Store.GetList()
+	var txModels []models.Transaction
+
+	page, limit, err := getPaginationParams(r)
+	if err != nil || page < 0 || limit < 0 {
+		txModels, err = DataHandler.Store.GetList()
+	} else {
+		txModels, err = DataHandler.Store.GetPaginatedList(limit, page)
+	}
 
 	if err != nil {
 		WriteError(w, "Failed to find books. "+err.Error(), 512)
@@ -178,4 +185,19 @@ func DeleteAllHandler(w http.ResponseWriter, r *http.Request) {
 func WriteError(w http.ResponseWriter, errorMsg string, statusCode int) {
 	fmt.Println(errorMsg)
 	http.Error(w, errorMsg, statusCode)
+}
+
+func getPaginationParams(r *http.Request) (page int, limit int, error error) {
+	query := r.URL.Query()
+
+	page, err := strconv.Atoi(query.Get("page"))
+	if err != nil || page < 0 {
+		return -1, -1, err
+	}
+	limit, err = strconv.Atoi(query.Get("limit"))
+	if err != nil || limit < 0 {
+		return -1, -1, err
+	}
+
+	return page, limit, nil
 }
