@@ -1,5 +1,8 @@
-Step steps:
+Stepup steps:
    1. Clone the repo
+      git clone https://github.com/Ssenhub/transaction-crud-svc-go-postgres
+
+   2.    
       
 
 LLM experience:
