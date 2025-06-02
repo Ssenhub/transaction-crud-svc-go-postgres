@@ -114,7 +114,7 @@ func PutHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = DataHandler.Store.Update(putTx)
 	if err != nil {
-		WriteError(w, "Failed to save transaction. "+err.Error(), 514)
+		WriteError(w, "Failed to save transaction. "+err.Error(), 516)
 	} else {
 		w.WriteHeader(http.StatusOK)
 		w.Write(body)
@@ -175,7 +175,7 @@ func DeleteAllHandler(w http.ResponseWriter, r *http.Request) {
 	err := DataHandler.Store.DeleteAll()
 
 	if err != nil {
-		WriteError(w, "Delete failed. "+err.Error(), 517)
+		WriteError(w, "Delete failed. "+err.Error(), 516)
 		return
 	}
 
