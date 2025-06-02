@@ -68,7 +68,7 @@ func main() {
 	})
 
 	server := &http.Server{
-		Addr:    ":3000",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: router,
 	}
 

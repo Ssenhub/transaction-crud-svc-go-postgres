@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"testing"
 	"time"
@@ -368,7 +369,9 @@ func login() (string, error) {
 		return "", err
 	}
 
-	request, err := http.NewRequest("POST", "http://localhost:3000/login", bytes.NewBuffer(json_data))
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "login", -1, -1)
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return "", err
@@ -407,7 +410,9 @@ func create(data models.Transaction) (*http.Response, error) {
 		return nil, err
 	}
 
-	request, err := http.NewRequest("POST", "http://localhost:3000/transactions", bytes.NewBuffer(json_data))
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions", -1, -1)
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -427,7 +432,9 @@ func create(data models.Transaction) (*http.Response, error) {
 func getList() (*http.Response, error) {
 	client := &http.Client{}
 
-	request, err := http.NewRequest("GET", "http://localhost:3000/transactions", nil)
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions", -1, -1)
+
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -447,13 +454,7 @@ func getList() (*http.Response, error) {
 func getPaginatedList(limit int, offset int) (*http.Response, error) {
 	client := &http.Client{}
 
-	baseUrl := "http://localhost:3000/transactions"
-
-	url, err := buildUrl(baseUrl, limit, offset)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions", limit, offset)
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -475,7 +476,9 @@ func getPaginatedList(limit int, offset int) (*http.Response, error) {
 func get(id uint) (*http.Response, error) {
 	client := &http.Client{}
 
-	request, err := http.NewRequest("GET", "http://localhost:3000/transactions/"+strconv.FormatUint(uint64(id), 10), nil)
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions/"+strconv.FormatUint(uint64(id), 10), -1, -1)
+
+	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -501,7 +504,9 @@ func update(id uint, data models.Transaction) (*http.Response, error) {
 		return nil, err
 	}
 
-	request, err := http.NewRequest("PUT", "http://localhost:3000/transactions/"+strconv.FormatUint(uint64(id), 10), bytes.NewBuffer(json_data))
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions/"+strconv.FormatUint(uint64(id), 10), -1, -1)
+
+	request, err := http.NewRequest("PUT", url, bytes.NewBuffer(json_data))
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -521,7 +526,9 @@ func update(id uint, data models.Transaction) (*http.Response, error) {
 func delete(id uint) (*http.Response, error) {
 	client := &http.Client{}
 
-	request, err := http.NewRequest("DELETE", "http://localhost:3000/transactions/"+strconv.FormatUint(uint64(id), 10), nil)
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions/"+strconv.FormatUint(uint64(id), 10), -1, -1)
+
+	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -541,7 +548,9 @@ func delete(id uint) (*http.Response, error) {
 func deleteAll() (*http.Response, error) {
 	client := &http.Client{}
 
-	request, err := http.NewRequest("DELETE", "http://localhost:3000/transactions", nil)
+	url := buildUrl("http", "localhost", os.Getenv("PORT"), "transactions", -1, -1)
+
+	request, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println(err, "NewRequest")
@@ -600,18 +609,21 @@ func validateData(t *testing.T, resp *http.Response, expectedData []models.Trans
 	}
 }
 
-func buildUrl(base string, limit, offset int) (string, error) {
-	u, err := url.Parse(base)
-	if err != nil {
-		return "", err
+func buildUrl(scheme, host string, port string, segment string, limit, offset int) string {
+	u := &url.URL{
+		Scheme: scheme,
+		Host:   fmt.Sprintf("%s:%s", host, port),
+	}
+	u.Path = path.Join("/", segment) // Ensure proper joining
+
+	if limit > 0 && offset >= 0 {
+		q := u.Query()
+		q.Set("limit", strconv.Itoa(limit))
+		q.Set("page", strconv.Itoa(offset))
+		u.RawQuery = q.Encode()
 	}
 
-	q := u.Query()
-	q.Set("limit", strconv.Itoa(limit))
-	q.Set("page", strconv.Itoa(offset))
-	u.RawQuery = q.Encode()
-
-	return u.String(), nil
+	return u.String()
 }
 
 func cleanUp() {
