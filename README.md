@@ -1,18 +1,16 @@
-Stepup steps:
-   1. Clone the repo
-      git clone https://github.com/Ssenhub/transaction-crud-svc-go-postgres
+**Stepup steps**
+   1. Clone the repo <br>
+      `git clone https://github.com/Ssenhub/transaction-crud-svc-go-postgres` <br> 
 
-   2. Test composed docker containter
-      a. cd transaction-crud-svc-go-postgres
-      b. docker compose up
-
-      d. Run automated tests
-           i) Open a new terminal
-          ii) cd transaction-crud-svc-go-postgres/tests
-         iii) go test -v
-
-      e. Run manual tests
-         i) Use a command line tool (curl on bash or powershell) or GUI apps such as PostMan or Insomnia.
+   2. Test composed docker containter <br>
+        a. `cd transaction-crud-svc-go-postgres` <br>
+        b. `docker compose up` <br>
+        c. Run automated tests <br>
+         &nbsp;&nbsp;&nbsp;  i) Open a new terminal <br>
+         &nbsp;&nbsp;&nbsp;  ii) `cd transaction-crud-svc-go-postgres/tests` <br>
+         &nbsp;&nbsp;&nbsp; iii) `go test -v` <br>
+        d. Run manual tests <br>
+         &nbsp;&nbsp;&nbsp;  i) Use a command line tool (`curl` on bash or powershell) or GUI apps such as PostMan or Insomnia. <br>
 
          Powershell exacmple:
       
@@ -60,34 +58,43 @@ Stepup steps:
           > $result
           > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method DELETE -Header $headers #Delete tx by id
    
-   3. Test docker containter with external DB:
-      a. cd transaction-crud-svc-go-postgres
-      b. docker build  -t server-image .
-      c. docker run -d -p 3000:3000 server-image #Make sure the port matches with .env 'PORT' variable.
-      d. Run automated tests
-           i) Open a new terminal
-          ii) cd transaction-crud-svc-go-postgres/tests
-         iii) go test -v
-      e. Run manual tests
-          i) Follow same steps as step 2e.
+   3. Test docker containter with external DB <br>
+      a. Update following vartiables in `.env` file to appropriate values of local PostGreSQL installation <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_PORT=5432` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_USER=postgres` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_PASSWORD=passwd` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_DB=postgres` <br>
+      b. `cd transaction-crud-svc-go-postgres` <br>
+      c. `docker build  -t server-image .` <br>
+      d. `docker run -d -p 3000:3000 server-image` #Make sure the port matches with .env 'PORT' variable. <br>
+      e. Run automated tests <br>
+         &nbsp;&nbsp;&nbsp;    i) Open a new terminal <br>
+         &nbsp;&nbsp;&nbsp;   ii) `cd transaction-crud-svc-go-postgres/tests` <br>
+         &nbsp;&nbsp;&nbsp;  iii) `go test -v` <br>
+      f. Run manual tests <br>
+         &nbsp;&nbsp;&nbsp;   i) Follow same steps as step 2d. <br>
                        
-   4. Test locally:
-      a. cd transaction-crud-svc-go-postgres
-      b. go run .
-
-      c. Run automated tests
-           i) Open a new terminal
-          ii) cd transaction-crud-svc-go-postgres/tests
-         iii) go test -v
-      d. Run manual tests
-         i) Follow same steps as step 2.
+   5. Test locally <br>
+      a. Update following vartiables in `.env` file to appropriate values of local PostGreSQL installation <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_PORT=5432` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_USER=postgres` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_PASSWORD=passwd` <br>
+         &nbsp;&nbsp;&nbsp;`POSTGRES_DB=postgres` <br>
+      b. `cd transaction-crud-svc-go-postgres` <br>
+      c. `go run .` <br>
+      d. Run automated tests <br>
+         &nbsp;&nbsp;&nbsp;   i) Open a new terminal <br>
+         &nbsp;&nbsp;&nbsp;  ii) `cd transaction-crud-svc-go-postgres/tests` <br>
+         &nbsp;&nbsp;&nbsp; iii) `go test -v` <br>
+      e. Run manual tests <br>
+         &nbsp;&nbsp;&nbsp; i) Follow same steps as step 2d. <br>
          
           
-LLM experience:
+**LLM experience**
 
   I have used Chatgpt as primary resource and Gemini as a secondary backup. I have satisfied all the requirements with these two LLMs. 
   
-What was good with LLMs
+***What was good with LLMs***
    1. Able to define transaction schema
    2. Understand context really well. Did not need to mention go and postgres with every question
    3. Came up with basic API structures
@@ -96,7 +103,7 @@ What was good with LLMs
    6. Good with specific questions regarding particular errors or scenarios. If ChatGpt's answer cannot fix it, Gemini's answer did.
    7. Able to write basic docker and compose.ymal
 
-What did not work well
+***What did not work well***
    1. Did not provided indexes at first. But did it after asking
    2. Folder hirarchy was minimal
    3. Did not use libraries (chi and gorm) at first. Did it after asking.
