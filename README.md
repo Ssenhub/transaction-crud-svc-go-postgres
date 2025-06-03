@@ -2,20 +2,22 @@ Stepup steps:
    1. Clone the repo
       git clone https://github.com/Ssenhub/transaction-crud-svc-go-postgres
 
-   2. Test locally:
+   2. Test composed docker containter
       a. cd transaction-crud-svc-go-postgres
-      b. go run .
+      b. docker compose up
 
-      c. Run automated tests
+      d. Run automated tests
            i) Open a new terminal
           ii) cd transaction-crud-svc-go-postgres/tests
          iii) go test -v
-      d. Run manual tests
+
+      e. Run manual tests
          i) Use a command line tool (curl on bash or powershell) or GUI apps such as PostMan or Insomnia.
-         
-          Powershell exacmple:
+
+         Powershell exacmple:
+      
           > $loginbody = '{"username": "jondoe", "password": "passwd"}' #Make sure user name and password mathces with 'USER_NAME' and 'PASSWORD' variable in .env
-          > $r = curl -Uri "http://localhost:3000/login" -Method POST -Body $loginbody  #Make sure this matches with .env 'PORT' variable
+          > $r = curl -Uri "http://localhost:3000/login" -Method POST -Body $loginbody  #Make sure the port matches with .env 'PORT' variable
           > $token = (convertfrom-json $r.Content).token
           > $headers = @{"Authorization" = "Bearer "+$token}
           > $metadata = @{"channel" = "mobile_app1"; "location" = "Seattle, WA"}
@@ -31,11 +33,11 @@ Stepup steps:
                   "Metadata"     = convertto-json $md
                }
           > $body = ConvertTo-Json $tx
-          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions" -Method POST -Header $headers -Body $body **#Create**
-          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions" -Method GET -Header $headers **#Get list  **
+          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions" -Method POST -Header $headers -Body $body #Create
+          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions" -Method GET -Header $headers #Get list
           > $result = convertfrom-json  $r.Content
           > $result
-          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions?limit=1&page=0" -Method GET -Header $headers **#Get pages  **
+          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions?limit=1&page=0" -Method GET -Header $headers #Get pages
           > $result = convertfrom-json  $r.Content
           > $result
           > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method GET -Header $headers #Get tx by id  
@@ -53,11 +55,34 @@ Stepup steps:
                   "Metadata"     = convertto-json $md
                }
           > $body = ConvertTo-Json $tx
-          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method PUT -Header $headers -Body $body **#Update tx**
+          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method PUT -Header $headers -Body $body #Update tx
           > $result = convertfrom-json $r.Content
           > $result
-          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method DELETE -Header $headers **#Delete tx by id  **
+          > $r = Invoke-WebRequest -Uri "http://localhost:3000/transactions/505" -Method DELETE -Header $headers #Delete tx by id
+   
+   3. Test docker containter with external DB:
+      a. cd transaction-crud-svc-go-postgres
+      b. docker build  -t server-image .
+      c. docker run -d -p 3000:3000 server-image #Make sure the port matches with .env 'PORT' variable.
+      d. Run automated tests
+           i) Open a new terminal
+          ii) cd transaction-crud-svc-go-postgres/tests
+         iii) go test -v
+      e. Run manual tests
+          i) Follow same steps as step 2e.
+                       
+   4. Test locally:
+      a. cd transaction-crud-svc-go-postgres
+      b. go run .
 
+      c. Run automated tests
+           i) Open a new terminal
+          ii) cd transaction-crud-svc-go-postgres/tests
+         iii) go test -v
+      d. Run manual tests
+         i) Follow same steps as step 2.
+         
+          
 LLM experience:
 
   I have used Chatgpt as primary resource and Gemini as a secondary backup. I have satisfied all the requirements with these two LLMs. 
